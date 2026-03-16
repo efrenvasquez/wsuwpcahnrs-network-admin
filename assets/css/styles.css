@@ -1,0 +1,25 @@
+.toplevel_page_wsuwp-multisite-info:not(.wp-first-item) {
+    background: white;
+}
+.wsuwp-multisite-information {
+    display: inline-table;
+    margin-top: 1rem !important;
+}
+
+.wsuwp-multisite-information th {
+    font-weight: bold !important;
+}
+
+.wsuwp-multisite-information tr:nth-child(even) {
+    background: #f2f2f2;
+}
+
+div#DataTables_Table_0_length select {
+    width: 50px;
+}
+
+table.dataTable.stripe tbody tr.odd, table.dataTable.display tbody tr.odd,
+table.dataTable.display tbody tr.odd>.sorting_1, table.dataTable.order-column.stripe tbody tr.odd>.sorting_1,
+table.dataTable.display tbody tr.even>.sorting_1, table.dataTable.order-column.stripe tbody tr.even>.sorting_1 {
+    background-color: transparent !important;
+}
