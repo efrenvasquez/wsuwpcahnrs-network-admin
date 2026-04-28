@@ -19,61 +19,78 @@ class WSUWP_Multisite_Info {
     }
 
     public function generate_network_accessibility_report($site_id) {
-        $total_errors = 0;
-        $total_alerts = 0;
+        $total_errors   = 0;
+        $total_alerts   = 0;
         $total_warnings = 0;
-    
-        $selected_issue_types = ['errors', 'alerts', 'warnings'];
-    
+        $total_correct  = 0;
+        $total_no_data  = 0;
+
+        $selected_issue_types = array( 'errors', 'alerts', 'warnings' );
+
         switch_to_blog($site_id);
-    
+
         $args = array(
-            'post_type' => 'page',
+            'post_type'      => array( 'page', 'post' ),
             'posts_per_page' => -1,
-            'post_status' => 'publish',
+            'post_status'    => 'any',
         );
-    
+
         $query = new \WP_Query($args);
-    
+
         if ($query->have_posts()) {
-    
             while ($query->have_posts()) {
                 $query->the_post();
                 $post_id = get_the_ID();
-                $custom_meta = get_post_meta($post_id, '_wsuwp_accessibility_report', true);
-    
-                if (is_object($custom_meta)) {
-                    $report = $custom_meta;
-    
-                    if (in_array('errors', $selected_issue_types) && !empty($report->errors)) {
-                        foreach ($report->errors as $error) {
-                            $total_errors++;
-                        }
-                    }
-    
-                    if (in_array('alerts', $selected_issue_types) && !empty($report->alerts)) {
-                        foreach ($report->alerts as $alert) {
-                            $total_alerts++;
-                        }
-                    }
-    
-                    if (in_array('warnings', $selected_issue_types) && !empty($report->warnings)) {
-                        foreach ($report->warnings as $warning) {
-                            $total_warnings++;
-                        }
-                    }
+
+                $custom_meta = get_post_meta( $post_id, '_wsuwp_accessibility_report', true );
+
+                if ( empty( $custom_meta ) ) {
+                    $custom_meta = get_post_meta( $post_id, 'wsuwp_accessibility_report', true );
+                }
+
+                if ( empty( $custom_meta ) ) {
+                    $total_no_data++;
+                    continue;
+                }
+
+                $report = is_string( $custom_meta ) ? json_decode( $custom_meta ) : $custom_meta;
+
+                if ( ! is_object( $report ) ) {
+                    $total_no_data++;
+                    continue;
+                }
+
+                $errors_count   = ( isset( $report->errors ) && is_array( $report->errors ) ) ? count( $report->errors ) : 0;
+                $alerts_count   = ( isset( $report->alerts ) && is_array( $report->alerts ) ) ? count( $report->alerts ) : 0;
+                $warnings_count = ( isset( $report->warnings ) && is_array( $report->warnings ) ) ? count( $report->warnings ) : 0;
+
+                if ( in_array( 'errors', $selected_issue_types, true ) ) {
+                    $total_errors += $errors_count;
+                }
+
+                if ( in_array( 'alerts', $selected_issue_types, true ) ) {
+                    $total_alerts += $alerts_count;
+                }
+
+                if ( in_array( 'warnings', $selected_issue_types, true ) ) {
+                    $total_warnings += $warnings_count;
+                }
+
+                if ( 0 === $errors_count && 0 === $alerts_count && 0 === $warnings_count ) {
+                    $total_correct++;
                 }
             }
         }
-    
+
         wp_reset_postdata();
-    
         restore_current_blog();
-    
+
         return array(
-            'errors' => $total_errors,
-            'alerts' => $total_alerts,
+            'errors'   => $total_errors,
+            'alerts'   => $total_alerts,
             'warnings' => $total_warnings,
+            'correct'  => $total_correct,
+            'no_data'  => $total_no_data,
         );
     }
 

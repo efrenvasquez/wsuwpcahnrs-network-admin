@@ -167,10 +167,12 @@
                     $network_total_errors  = (int) ($accessibility_totals['errors'] ?? 0);
                     $network_total_alerts  = (int) ($accessibility_totals['alerts'] ?? 0);
                     $network_total_warnings = (int) ($accessibility_totals['warnings'] ?? 0);
+                    $network_total_correct  = (int) ($accessibility_totals['correct'] ?? 0);
+                    $network_total_no_data  = (int) ($accessibility_totals['no_data'] ?? 0);
 
                     echo '<tr>';
                     echo '<td><a href="' . esc_url( $site_url ) . '" target="_blank" rel="noopener noreferrer">' . esc_html( $site_url ) . '</a></td>';
-                    echo '<td>Errors: ' . esc_html( $network_total_errors ) . '<br> Alerts: ' . esc_html( $network_total_alerts ) . '<br> Warnings: ' . esc_html( $network_total_warnings ) . '</td>';
+                    echo '<td>Errors: ' . esc_html( $network_total_errors ) . '<br> Alerts: ' . esc_html( $network_total_alerts ) . '<br> Warnings: ' . esc_html( $network_total_warnings ) . '<br>' . 'Correct: ' . esc_html( $network_total_correct ) . '<br> No Data: ' . esc_html( $network_total_no_data ) .'</td>';
                     echo '<td>' . esc_html( $input_field_setting_GA4 ) . '</td>';
                     echo '<td>' . esc_html( $input_field_settings_index_site ) . '</td>';
                     echo '<td>' . esc_html( $theme ) . '</td>';
