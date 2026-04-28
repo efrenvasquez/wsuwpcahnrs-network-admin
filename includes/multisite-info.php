@@ -196,6 +196,40 @@ class WSUWP_Multisite_Info {
         return $setting_value;
     }
 
+    //Retrieve total documents on subsites
+    public function get_media_document_count( $site_id, $document_mime_types = array() ){
+    switch_to_blog( $site_id );
+
+        if( empty( $document_mime_types )){
+            $document_mime_types = array(
+                'application/pdf',
+                'application/msword',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'application/vnd.ms-powerpoint',
+                'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+                'application/vnd.ms-excel',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'application/csv',
+                'text/csv'
+            );
+        }
+        
+
+        $query = new \WP_Query( array(
+            'post_type'         => 'attachment',
+            'post_status'       => 'inherit',
+            'posts_per_page'    => 1,
+            'fields'            => 'ids',
+            'post_mime_type'    => $document_mime_types,
+        ));
+
+        $count = (int) $query->found_posts;
+
+        restore_current_blog();
+
+        return $count;
+    }
+
     // Retrieve total media files and breakdown by file type
     // public function get_media_file_info( $site_id ) {
     //     switch_to_blog( $site_id );

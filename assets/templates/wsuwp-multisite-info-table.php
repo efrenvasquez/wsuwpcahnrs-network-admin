@@ -78,6 +78,7 @@
                 <!-- <th>Media Files</th> -->
                 <th>Registered</th>
                 <th>Last Updated</th>
+                <th>Documents</th>
             </tr>
         </thead>
 
@@ -113,6 +114,36 @@
                     $pages_count            = (int) $this->get_page_count( $site_id );
                     $posts_count            = (int) $this->get_post_count( $site_id );
                     $custom_post_type_count = (int) $this->get_custom_post_type_count( $site_id );
+                    $document_count = $this->get_media_document_count( $site_id );
+
+                    $pdf_count = $this->get_media_document_count( $site_id, array(
+                        'application/pdf',
+                    ) );
+
+                    $word_count = $this->get_media_document_count( $site_id, array(
+                        'application/msword',
+                        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                    ) );
+
+                    $powerpoint_count = $this->get_media_document_count( $site_id, array(
+                        'application/vnd.ms-powerpoint',
+                        'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+                    ) );
+
+                    $excel_count = $this->get_media_document_count( $site_id, array(
+                        'application/vnd.ms-excel',
+                        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                        'application/csv',
+                        'text/csv'
+                    ) );
+
+                    $document_summary =
+                        'PDF: ' . esc_html( $pdf_count ) . '<br>' .
+                        'Word: ' . esc_html( $word_count ) . '<br>' .
+                        'PowerPoint: ' . esc_html( $powerpoint_count ) . '<br>' .
+                        'Excel: ' . esc_html( $excel_count ) . '<br>' .
+                        'Total Documents: ' . esc_html( $document_count );
+
 
                     $input_field_setting_GA4 = $this->get_input_field_setting_GA4( $site_id );
 
@@ -150,36 +181,13 @@
                     echo '<td><a href="' . esc_url( $site_url . '/wp-admin/edit.php?post_type=tribe_events' ) . '">' . esc_html( $custom_post_type_count ) . '</a></td>';
                     echo '<td data-order="' . esc_attr( $registration_order ) . '">' . esc_html( $formatted_registration_date ) . '</td>';
                     echo '<td data-order="' . esc_attr( $last_updated_order ) . '">' . esc_html( $formatted_last_updated ) . '</td>';
+                    echo '<td>' . wp_kses_post ( $document_summary ) . '</td>';
                     echo '</tr>';
                 }
             else :
-                echo '<tr><td colspan="12">No sites found.</td></tr>';
+                echo '<tr><td colspan="13">No sites found.</td></tr>';
             endif;
             ?>
         </tbody>
     </table>
 </div>
-
-<script>
-jQuery(function($) {
-
-    if ($.fn.DataTable) {
-        $('.wsuwp-multisite-information').DataTable({
-            paging: false,
-            info: false
-        });
-    }
-
-    $('#wsuwp-per-page').on('change', function () {
-        var perPage = $(this).val();
-
-        // Update URL params
-        var url = new URL(window.location.href);
-        url.searchParams.set('per_page', perPage);
-        url.searchParams.set('paged', '1');
-
-        window.location.href = url.toString();
-    });
-
-});
-</script>
