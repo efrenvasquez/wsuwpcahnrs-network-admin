@@ -70,7 +70,7 @@
                 <th>GA4</th>
                 <th>Indexed</th>
                 <th>Theme</th>
-                <th>Plugins</th>
+                <th>Plugins (bold are network activated)</th>
                 <th>Users</th>
                 <th>Pages</th>
                 <th>Posts</th>
@@ -95,16 +95,31 @@
                     $theme     = $theme_obj->get( 'Name' );
                     restore_current_blog();
 
-                    $plugins = get_blog_option( $site_id, 'active_plugins', array() );
+                    $site_plugins = get_blog_option( $site_id, 'active_plugins', array() );
+                    $network_plugins = array_keys( (array) get_site_option( 'active_sitewide_plugins', array() ) );
+
+                    $all_plugins = array_unique( array_merge( $site_plugins, $network_plugins ) );
 
                     $active_plugins = array();
-                    foreach ( $plugins as $plugin ) {
+
+                    foreach ( $all_plugins as $plugin ) {
                         $plugin_file = WP_PLUGIN_DIR . '/' . $plugin;
+
                         if ( file_exists( $plugin_file ) ) {
                             $plugin_data = get_plugin_data( $plugin_file, false, false );
-                            $active_plugins[] = $plugin_data['Name'] ?: $plugin;
+                            $plugin_name = ! empty( $plugin_data['Name'] ) ? $plugin_data['Name'] : $plugin;
+
+                            if ( in_array( $plugin, $network_plugins, true ) ) {
+                                $active_plugins[] = '<strong>' . esc_html( $plugin_name ) . '</strong>';
+                            } else {
+                                $active_plugins[] = esc_html( $plugin_name );
+                            }
                         } else {
-                            $active_plugins[] = $plugin;
+                            if ( in_array( $plugin, $network_plugins, true ) ) {
+                                $active_plugins[] = '<strong>' . esc_html( $plugin ) . '</strong>';
+                            } else {
+                                $active_plugins[] = esc_html( $plugin );
+                            }
                         }
                     }
 
@@ -176,7 +191,7 @@
                     echo '<td>' . esc_html( $input_field_setting_GA4 ) . '</td>';
                     echo '<td>' . esc_html( $input_field_settings_index_site ) . '</td>';
                     echo '<td>' . esc_html( $theme ) . '</td>';
-                    echo '<td>' . wp_kses_post( implode( '<br>', array_map( 'esc_html', $active_plugins ) ) ) . '</td>';
+                    echo '<td>' . wp_kses_post( implode( '<br>', $active_plugins ) ) . '</td>';
                     echo '<td><a href="' . esc_url( $site_url . '/wp-admin/users.php' ) . '">' . esc_html( $users ) . '</a></td>';
                     echo '<td><a href="' . esc_url( $site_url . '/wp-admin/edit.php?post_type=page' ) . '">' . esc_html( $pages_count ) . '</a></td>';
                     echo '<td><a href="' . esc_url( $site_url . '/wp-admin/edit.php' ) . '">' . esc_html( $posts_count ) . '</a></td>';
