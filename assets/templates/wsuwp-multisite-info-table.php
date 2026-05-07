@@ -20,27 +20,49 @@
     );
 
     $per_page_options = [ 10, 25, 50, 100 ];
+    $show_network_plugins = ! empty( $_GET['show_network_plugins'] ) ? 1 : 0;
     ?>
 
     <div class="tablenav top" style="display:flex; justify-content:space-between; align-items:center; margin: 12px 0;">
-        <div class="alignleft actions">
-            <label for="wsuwp-per-page" style="margin-right:6px;">Show</label>
-            <select id="wsuwp-per-page">
-                <?php foreach ( $per_page_options as $opt ) : ?>
-                    <option value="<?php echo (int) $opt; ?>" <?php echo selected( (int) $per_page, (int) $opt, false ); ?>>
-                        <?php echo (int) $opt; ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
+        <div class="alignleft actions" style="display:flex; align-items:center; gap:16px;">
+            <div>
+                <label for="wsuwp-per-page" style="margin-right:6px;">Show</label>
+                <select id="wsuwp-per-page">
+                    <?php foreach ( $per_page_options as $opt ) : ?>
+                        <option value="<?php echo (int) $opt; ?>" <?php echo selected( (int) $per_page, (int) $opt, false ); ?>>
+                            <?php echo (int) $opt; ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
+            <form method="get" style="margin:0; display:flex; align-items:center; gap:6px;">
+                <input type="hidden" name="page" value="wsuwp-multisite-info">
+                <input type="hidden" name="per_page" value="<?php echo (int) $per_page; ?>">
+                <input type="hidden" name="paged" value="<?php echo (int) $paged; ?>">
+
+                <label for="show-network-plugins" style="display:flex; align-items:center; gap:6px;">
+                    <input
+                        type="checkbox"
+                        id="show-network-plugins"
+                        name="show_network_plugins"
+                        value="1"
+                        <?php checked( $show_network_plugins, 1 ); ?>
+                        onchange="this.form.submit()"
+                    >
+                    Show network activated plugins
+                </label>
+            </form>
         </div>
 
         <div class="tablenav-pages">
             <?php
             $pagination_base = add_query_arg(
                 [
-                    'page'     => 'wsuwp-multisite-info',
-                    'per_page' => $per_page,
-                    'paged'    => '%#%',
+                    'page'                 => 'wsuwp-multisite-info',
+                    'per_page'             => $per_page,
+                    'paged'                => '%#%',
+                    'show_network_plugins' => $show_network_plugins ? 1 : 0,
                 ],
                 network_admin_url('admin.php')
             );
@@ -70,7 +92,7 @@
                 <th>GA4</th>
                 <th>Indexed</th>
                 <th>Theme</th>
-                <th>Plugins (bold are network activated)</th>
+                <th>Plugins<?php echo $show_network_plugins ? ' (bold are network activated)' : ''; ?></th>
                 <th>Users</th>
                 <th>Pages</th>
                 <th>Posts</th>
@@ -95,8 +117,12 @@
                     $theme     = $theme_obj->get( 'Name' );
                     restore_current_blog();
 
-                    $site_plugins = get_blog_option( $site_id, 'active_plugins', array() );
-                    $network_plugins = array_keys( (array) get_site_option( 'active_sitewide_plugins', array() ) );
+                    $site_plugins    = get_blog_option( $site_id, 'active_plugins', array() );
+                    $network_plugins = $show_network_plugins
+                        ? array_keys( (array) get_site_option( 'active_sitewide_plugins', array() ) )
+                        : array();
+
+                    $all_plugins = array_unique( array_merge( $site_plugins, $network_plugins ) );
 
                     $all_plugins = array_unique( array_merge( $site_plugins, $network_plugins ) );
 

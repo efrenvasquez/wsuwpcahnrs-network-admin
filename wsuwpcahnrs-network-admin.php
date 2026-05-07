@@ -2,7 +2,7 @@
 /**
  * Plugin Name:     WSUWP Multisite Info
  * Description:     Displays information about CAHRNS websites in a multisite installation.
- * Version:         1.6.1
+ * Version:         1.7.0
  * Author:          CAHNRS Communications
  * Author URI:      https://cahnrs.wsu.edu/
  * Text Domain:     wsuwp-multisite-info
@@ -14,7 +14,7 @@ if ( ! defined( 'WPINC' ) ) {
 }
 
 //Define the version of this WSUWP Multisite Info plugin
-define( 'WSUWPMULTISITEINFOVERSION', '1.6.1' );
+define( 'WSUWPMULTISITEINFOVERSION', '1.7.0' );
 
 //Load other files of this plugin
 function wsuwp_multisite_info_init(){
